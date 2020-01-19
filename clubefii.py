@@ -79,7 +79,7 @@ if __name__ == "__main__":
 
             data = dict(
                 cod_car=f'{codigo_carteira}',
-                nom_car='FII Dica de Hoje 2020',
+                nom_car='FII Carteira 2020',
                 cod_fii=get_fii_id(operation[2]),
                 cmb_tip='COMPRA' if operation[1] == 'C' else 'VENDA',
                 txt_dat=operation[0],
