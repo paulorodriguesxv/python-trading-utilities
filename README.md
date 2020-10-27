@@ -6,8 +6,8 @@ Python modules to help into day-to-day trading tasks
 nota_bovespas_modal.py
 ---------------------
     Module to extract data from broker's note PDF (notas de corretagem) using ModalMais PDF format. 
-    This module uses pdftotext, which may works on linux. 
-    It's generate a file named operaceos.csv
+    This module uses pdftotext, maybe it only works on linux. (for windows use conda)
+    It's generate a file named operacoes.csv
 
 Usage:
 ```bash

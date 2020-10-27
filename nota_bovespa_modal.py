@@ -3,6 +3,7 @@ import csv
 import argparse
 from collections import defaultdict
 
+
 class ENotaNaoBovespaModal(Exception):
     pass
 
@@ -31,13 +32,12 @@ def _string_to_float(value):
     return float(value.replace('.', '').replace(',', '.'))
 
 
-def get_preco_custo(
-    tipoOperacao,
-    preco,
-    qtde,
-    emol_tax=0.000049,
-    liq_tax=0.000275,
-    corr_tax=2.49):
+def get_preco_custo(tipoOperacao,
+                    preco,
+                    qtde,
+                    emol_tax=0.000049,
+                    liq_tax=0.000275,
+                    corr_tax=2.49):
 
     vl_custo = (preco * emol_tax) + (preco * liq_tax) + (corr_tax / qtde)
 
@@ -56,7 +56,7 @@ def get_trades(data, trades_index, page):
         _trade = split_trade(trade)
 
         tipoOperacao = _trade[0].split(" ")[-4]
-        
+
         qtde = _string_to_float(_trade[2])
         preco = convert_value(_trade[3])
         valor = convert_value(_trade[4])
@@ -65,17 +65,14 @@ def get_trades(data, trades_index, page):
         custo_valor = custo_preco * qtde
 
         trades.append(
-            dict(
-                data=data,
-                tipoOperacao=tipoOperacao,
-                ativo=_trade[1],
-                qtde=qtde,
-                preco=preco,
-                valor=valor,
-                custo_preco=custo_preco,
-                custo_valor=custo_valor
-            )
-        )
+            dict(data=data,
+                 tipoOperacao=tipoOperacao,
+                 ativo=_trade[1],
+                 qtde=qtde,
+                 preco=preco,
+                 valor=valor,
+                 custo_preco=custo_preco,
+                 custo_valor=custo_valor))
 
     return trades
 
@@ -110,12 +107,12 @@ def get_cblc(cblc_index, page):
 
     return _string_to_float(valor[-2])
 
+
 def get_total_bovespa(total_bovespa_index, page):
     valor = page[total_bovespa_index[0]].replace('|', '')
     valor = split_trade(valor)
 
-    return _string_to_float(valor[-2])        
-
+    return _string_to_float(valor[-2])
 
 
 def get_valor_negociado(valor_negociado_index, page):
@@ -163,7 +160,6 @@ def create_index(page):
 
         if "total bovespa" in line:
             total_bovespa_index.append(index)
-
         """
         if "Ajuste Day Trade" in line:
             valor_negociado_index.append(index+1)
@@ -172,16 +168,15 @@ def create_index(page):
             valor_liquido_index.append(index+1)
         """
         if "data pregão" in line:
-            data_pregao_index.append(index+1)
+            data_pregao_index.append(index + 1)
 
-    return dict(
-        trades=trades_index,
-        despesas=despesas_index,
-        cblc=cblc_index,
-        total_bovespa=total_bovespa_index,
-        valor_negociado=valor_negociado_index,
-        valor_liquido=valor_liquido_index,
-        data_pregao=data_pregao_index)
+    return dict(trades=trades_index,
+                despesas=despesas_index,
+                cblc=cblc_index,
+                total_bovespa=total_bovespa_index,
+                valor_negociado=valor_negociado_index,
+                valor_liquido=valor_liquido_index,
+                data_pregao=data_pregao_index)
 
 
 def extract_data(pdf):
@@ -195,10 +190,8 @@ def extract_data(pdf):
         page_index = create_index(page)
 
         data_pregao = get_data_pregao(page_index['data_pregao'], page)
-        
-        trades = get_trades(
-            data_pregao,
-            page_index['trades'], page)
+
+        trades = get_trades(data_pregao, page_index['trades'], page)
 
         documents.extend(trades)
 
@@ -232,6 +225,7 @@ def group_by_stock(trade_list):
 
     return trades
 
+
 def get_trade_results(trades):
     profit = 0
     for trade in trades:
@@ -264,19 +258,21 @@ def save_as_csv(tradelist: list):
             writer.writeheader()
             for data in tradelist:
                 row = {x: data.get(x) for x in csv_columns}
+                print(row)
                 writer.writerow(row)
     except IOError:
         print("I/O error")
 
 
-parser = argparse.ArgumentParser(description='Processar notas de corretagem do ModalMais.')
-parser.add_argument('files', type=str, nargs='+')
-
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description='Processar notas de corretagem do ModalMais.')
+    parser.add_argument('files', type=str, nargs='+')
+
     args = parser.parse_args()
 
     tradelist = []
     for filename in args.files:
         tradelist.extend(create_tradelist(filename))
-    
+
     save_as_csv(tradelist)
